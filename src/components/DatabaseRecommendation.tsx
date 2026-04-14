@@ -2,8 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "./ui/badge";
 import { Loader2, Database, TrendingUp, AlertCircle } from "lucide-react";
 
@@ -37,10 +49,16 @@ export default function DatabaseRecommendation() {
 
   const fetchBacteriaList = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/bacteria-list/");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/bacteria-list/`,
+      );
       if (response.ok) {
         const data = await response.json();
-        setBacteriaList(data.map((item: any) => item.name).filter((name: string) => name && name.trim() !== ""));
+        setBacteriaList(
+          data
+            .map((item: any) => item.name)
+            .filter((name: string) => name && name.trim() !== ""),
+        );
       }
     } catch (err) {
       console.error("Failed to fetch bacteria list:", err);
@@ -58,13 +76,16 @@ export default function DatabaseRecommendation() {
     setRecommendations([]);
 
     try {
-      const response = await fetch("http://localhost:8000/api/ai/predict/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/ai/predict/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ bacteria_name: selectedBacteria }),
         },
-        body: JSON.stringify({ bacteria_name: selectedBacteria }),
-      });
+      );
 
       if (response.ok) {
         const data: ApiResponse = await response.json();
@@ -103,15 +124,21 @@ export default function DatabaseRecommendation() {
             Database-Based Antibiotic Recommendations
           </CardTitle>
           <CardDescription>
-            Get antibiotic recommendations based on historical sensitivity data from your database.
-            This analysis relies solely on actual test results without AI prediction models.
+            Get antibiotic recommendations based on historical sensitivity data
+            from your database. This analysis relies solely on actual test
+            results without AI prediction models.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Select Bacteria</label>
-              <Select value={selectedBacteria} onValueChange={setSelectedBacteria}>
+              <label className="block text-sm font-medium mb-2">
+                Select Bacteria
+              </label>
+              <Select
+                value={selectedBacteria}
+                onValueChange={setSelectedBacteria}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a bacteria..." />
                 </SelectTrigger>
@@ -150,9 +177,12 @@ export default function DatabaseRecommendation() {
       {recommendations.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Antibiotic Recommendations for {selectedBacteria}</CardTitle>
+            <CardTitle>
+              Antibiotic Recommendations for {selectedBacteria}
+            </CardTitle>
             <CardDescription>
-              Based on historical sensitivity data. Effectiveness calculated from actual test results.
+              Based on historical sensitivity data. Effectiveness calculated
+              from actual test results.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -161,7 +191,9 @@ export default function DatabaseRecommendation() {
                 <Card key={index} className="relative">
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start">
-                      <CardTitle className="text-lg">{rec.antibiotic}</CardTitle>
+                      <CardTitle className="text-lg">
+                        {rec.antibiotic}
+                      </CardTitle>
                       <Badge
                         className={`${getEffectivenessColor(rec.effectiveness)} text-white`}
                       >
@@ -175,7 +207,9 @@ export default function DatabaseRecommendation() {
                   <CardContent className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span>Effectiveness:</span>
-                      <span className="font-semibold">{rec.effectiveness}%</span>
+                      <span className="font-semibold">
+                        {rec.effectiveness}%
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span>Total Tests:</span>
@@ -203,4 +237,3 @@ export default function DatabaseRecommendation() {
     </div>
   );
 }
-

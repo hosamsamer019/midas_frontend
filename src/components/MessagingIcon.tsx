@@ -40,19 +40,22 @@ export default function MessagingIcon() {
   }, [user]);
 
   const fetchMessages = async () => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (!token) return;
 
     try {
-      const response = await fetch("http://localhost:8000/api/messaging/messages/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/messaging/messages/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (response.ok) {
         const messages: Message[] = await response.json();
-        const unreadMessages = messages.filter(msg => !msg.read_status);
+        const unreadMessages = messages.filter((msg) => !msg.read_status);
         setUnreadCount(unreadMessages.length);
         setRecentMessages(messages.slice(0, 5)); // Show last 5 messages
       }
@@ -62,18 +65,21 @@ export default function MessagingIcon() {
   };
 
   const markAsRead = async (messageId: number) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (!token) return;
 
     try {
-      await fetch(`http://localhost:8000/api/messaging/messages/${messageId}/`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/messaging/messages/${messageId}/`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ read_status: true }),
         },
-        body: JSON.stringify({ read_status: true }),
-      });
+      );
       fetchMessages(); // Refresh messages
     } catch (error) {
       console.error("Failed to mark message as read:", error);

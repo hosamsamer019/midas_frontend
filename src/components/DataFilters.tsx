@@ -4,7 +4,13 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Filters {
   dateFrom: string;
@@ -46,7 +52,9 @@ interface AntibioticOption {
   category: string;
 }
 
-export default function DataFilters({ onFiltersChange }: DataFiltersProps): React.ReactElement {
+export default function DataFilters({
+  onFiltersChange,
+}: DataFiltersProps): React.ReactElement {
   const [filters, setFilters] = useState<Filters>({
     dateFrom: "",
     dateTo: "",
@@ -59,59 +67,83 @@ export default function DataFilters({ onFiltersChange }: DataFiltersProps): Reac
   });
 
   const [bacteriaOptions, setBacteriaOptions] = useState<BacteriaOption[]>([]);
-  const [departmentOptions, setDepartmentOptions] = useState<DepartmentOption[]>([]);
+  const [departmentOptions, setDepartmentOptions] = useState<
+    DepartmentOption[]
+  >([]);
   const [hospitalOptions, setHospitalOptions] = useState<HospitalOption[]>([]);
-  const [sampleTypeOptions, setSampleTypeOptions] = useState<SampleTypeOption[]>([]);
-  const [antibioticOptions, setAntibioticOptions] = useState<AntibioticOption[]>([]);
+  const [sampleTypeOptions, setSampleTypeOptions] = useState<
+    SampleTypeOption[]
+  >([]);
+  const [antibioticOptions, setAntibioticOptions] = useState<
+    AntibioticOption[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOptions = async () => {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem("access_token");
       const requestOptions: RequestInit = {};
-      
+
       if (token) {
         requestOptions.headers = {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         };
       }
 
-      const API_BASE = 'http://localhost:8000';
+      const API_BASE =
+        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
       try {
-        const bacteriaRes = await fetch(`${API_BASE}/api/bacteria-list/`, requestOptions);
+        const bacteriaRes = await fetch(
+          `${API_BASE}/api/bacteria-list/`,
+          requestOptions,
+        );
         if (bacteriaRes.ok) {
           const bacteriaData = await bacteriaRes.json();
           setBacteriaOptions(bacteriaData);
         }
 
-        const deptRes = await fetch(`${API_BASE}/api/departments-list/`, requestOptions);
+        const deptRes = await fetch(
+          `${API_BASE}/api/departments-list/`,
+          requestOptions,
+        );
         if (deptRes.ok) {
           const deptData = await deptRes.json();
           setDepartmentOptions(deptData);
         }
 
-        const hospitalRes = await fetch(`${API_BASE}/api/hospitals-list/`, requestOptions);
+        const hospitalRes = await fetch(
+          `${API_BASE}/api/hospitals-list/`,
+          requestOptions,
+        );
         if (hospitalRes.ok) {
           const hospitalData = await hospitalRes.json();
           setHospitalOptions(hospitalData);
         }
 
-        const sampleTypeRes = await fetch(`${API_BASE}/api/sample-types-list/`, requestOptions);
+        const sampleTypeRes = await fetch(
+          `${API_BASE}/api/sample-types-list/`,
+          requestOptions,
+        );
         if (sampleTypeRes.ok) {
           const sampleTypeData = await sampleTypeRes.json();
           setSampleTypeOptions(sampleTypeData);
         }
 
-        const antibioticRes = await fetch(`${API_BASE}/api/antibiotics-list/`, requestOptions);
+        const antibioticRes = await fetch(
+          `${API_BASE}/api/antibiotics-list/`,
+          requestOptions,
+        );
         if (antibioticRes.ok) {
           const antibioticData = await antibioticRes.json();
           setAntibioticOptions(antibioticData);
         }
       } catch (err) {
-        console.error('Error fetching filter options:', err);
-        setError('Unable to connect to server. Please ensure the Django backend is running on port 8000.');
+        console.error("Error fetching filter options:", err);
+        setError(
+          "Unable to connect to server. Please ensure the Django backend is running on port 8000.",
+        );
       } finally {
         setLoading(false);
       }
@@ -180,17 +212,26 @@ export default function DataFilters({ onFiltersChange }: DataFiltersProps): Reac
             {loading ? (
               <Input type="text" placeholder="Loading..." disabled />
             ) : (
-              <Select value={filters.bacteria} onValueChange={(value) => handleFilterChange("bacteria", value)}>
+              <Select
+                value={filters.bacteria}
+                onValueChange={(value) => handleFilterChange("bacteria", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select bacteria" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Bacteria</SelectItem>
-                  {bacteriaOptions.filter(bacteria => bacteria.name && bacteria.name.trim() !== '').map((bacteria) => (
-                    <SelectItem key={bacteria.id} value={bacteria.name}>
-                      {bacteria.name} {bacteria.type ? `(${bacteria.type})` : ''}
-                    </SelectItem>
-                  ))}
+                  {bacteriaOptions
+                    .filter(
+                      (bacteria) =>
+                        bacteria.name && bacteria.name.trim() !== "",
+                    )
+                    .map((bacteria) => (
+                      <SelectItem key={bacteria.id} value={bacteria.name}>
+                        {bacteria.name}{" "}
+                        {bacteria.type ? `(${bacteria.type})` : ""}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
@@ -201,17 +242,24 @@ export default function DataFilters({ onFiltersChange }: DataFiltersProps): Reac
             {loading ? (
               <Input type="text" placeholder="Loading..." disabled />
             ) : (
-              <Select value={filters.department} onValueChange={(value) => handleFilterChange("department", value)}>
+              <Select
+                value={filters.department}
+                onValueChange={(value) =>
+                  handleFilterChange("department", value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select department" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Departments</SelectItem>
-                  {departmentOptions.filter(dept => dept.name && dept.name.trim() !== '').map((dept, index) => (
-                    <SelectItem key={index} value={dept.name}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
+                  {departmentOptions
+                    .filter((dept) => dept.name && dept.name.trim() !== "")
+                    .map((dept, index) => (
+                      <SelectItem key={index} value={dept.name}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
@@ -222,38 +270,52 @@ export default function DataFilters({ onFiltersChange }: DataFiltersProps): Reac
             {loading ? (
               <Input type="text" placeholder="Loading..." disabled />
             ) : (
-              <Select value={filters.hospital} onValueChange={(value) => handleFilterChange("hospital", value)}>
+              <Select
+                value={filters.hospital}
+                onValueChange={(value) => handleFilterChange("hospital", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select hospital" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Hospitals</SelectItem>
-                  {hospitalOptions.filter(h => h.name && h.name.trim() !== '').map((hospital, index) => (
-                    <SelectItem key={index} value={hospital.name}>
-                      {hospital.name}
-                    </SelectItem>
-                  ))}
+                  {hospitalOptions
+                    .filter((h) => h.name && h.name.trim() !== "")
+                    .map((hospital, index) => (
+                      <SelectItem key={index} value={hospital.name}>
+                        {hospital.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Sample Type</label>
+            <label className="block text-sm font-medium mb-1">
+              Sample Type
+            </label>
             {loading ? (
               <Input type="text" placeholder="Loading..." disabled />
             ) : (
-              <Select value={filters.sampleType} onValueChange={(value) => handleFilterChange("sampleType", value)}>
+              <Select
+                value={filters.sampleType}
+                onValueChange={(value) =>
+                  handleFilterChange("sampleType", value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select sample type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Sample Types</SelectItem>
-                  {sampleTypeOptions.filter(st => st.name && st.name.trim() !== '').map((st, index) => (
-                    <SelectItem key={index} value={st.original || st.name}>
-                      {st.name}
-                    </SelectItem>
-                  ))}
+                  {sampleTypeOptions
+                    .filter((st) => st.name && st.name.trim() !== "")
+                    .map((st, index) => (
+                      <SelectItem key={index} value={st.original || st.name}>
+                        {st.name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
@@ -264,25 +326,39 @@ export default function DataFilters({ onFiltersChange }: DataFiltersProps): Reac
             {loading ? (
               <Input type="text" placeholder="Loading..." disabled />
             ) : (
-              <Select value={filters.antibiotic} onValueChange={(value) => handleFilterChange("antibiotic", value)}>
+              <Select
+                value={filters.antibiotic}
+                onValueChange={(value) =>
+                  handleFilterChange("antibiotic", value)
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select antibiotic" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Antibiotics</SelectItem>
-                  {antibioticOptions.filter(ab => ab.name && ab.name.trim() !== '').map((ab) => (
-                    <SelectItem key={ab.id} value={ab.name}>
-                      {ab.name} {ab.category ? `(${ab.category})` : ''}
-                    </SelectItem>
-                  ))}
+                  {antibioticOptions
+                    .filter((ab) => ab.name && ab.name.trim() !== "")
+                    .map((ab) => (
+                      <SelectItem key={ab.id} value={ab.name}>
+                        {ab.name} {ab.category ? `(${ab.category})` : ""}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Sensitivity Status</label>
-            <Select value={filters.sensitivity} onValueChange={(value) => handleFilterChange("sensitivity", value)}>
+            <label className="block text-sm font-medium mb-1">
+              Sensitivity Status
+            </label>
+            <Select
+              value={filters.sensitivity}
+              onValueChange={(value) =>
+                handleFilterChange("sensitivity", value)
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select sensitivity" />
               </SelectTrigger>

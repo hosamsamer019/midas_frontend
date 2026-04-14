@@ -1,11 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
     // Get the token from the request headers
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    const authHeader = request.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
@@ -14,14 +17,14 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const queryParams = url.searchParams.toString();
     const backendUrl = queryParams
-      ? `http://localhost:8000/api/sensitivity-distribution/?${queryParams}`
-      : 'http://localhost:8000/api/sensitivity-distribution/';
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/sensitivity-distribution/?${queryParams}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/sensitivity-distribution/`;
 
     // Forward the request to the Django backend
     const backendResponse = await fetch(backendUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -32,12 +35,11 @@ export async function GET(request: NextRequest) {
 
     const data = await backendResponse.json();
     return NextResponse.json(data);
-
   } catch (error) {
-    console.error('Sensitivity distribution API error:', error);
+    console.error("Sensitivity distribution API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }
