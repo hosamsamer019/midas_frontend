@@ -1,65 +1,200 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { Suspense, useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { Button } from "@/components/ui/button";
+import { Home as HomeIcon, FileText, Upload, Brain, Map, Mail, Menu, X, Shield, FlaskConical } from "lucide-react";
+import Dashboard from "@/components/Dashboard";
+import Login from "@/components/Login";
+import FileUpload from "@/components/FileUpload";
+import AIRecommendation from "@/components/AIRecommendation";
+import DatabaseRecommendation from "@/components/DatabaseRecommendation";
+import Reports from "@/components/Reports";
+import Heatmap from "@/components/Heatmap";
+import Messages from "@/components/Messages";
+import Header from "@/components/Header";
+import AdminPanel from "@/components/AdminPanel";
+import EucastSearch from "@/components/EucastSearch";
+
+export default function HomePage() {
+  const { isAuthenticated } = useAuth();
+  const { isDarkMode } = useTheme();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent<string>) => {
+      setActiveTab(event.detail);
+      setSidebarOpen(false);
+    };
+
+    window.addEventListener('tabChange', handleTabChange as EventListener);
+
+    return () => {
+      window.removeEventListener('tabChange', handleTabChange as EventListener);
+    };
+  }, []);
+
+  const handleMenuClick = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setSidebarOpen(false);
+  };
+
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <Dashboard />;
+      case "upload":
+        return <FileUpload />;
+      case "ai":
+        return <AIRecommendation />;
+      case "database":
+        return <DatabaseRecommendation />;
+      case "reports":
+        return <Reports />;
+      case "heatmap":
+        return <Heatmap />;
+      case "messages":
+        return <Messages />;
+      case "admin":
+        return <AdminPanel />;
+      case "eucast":
+        return <EucastSearch />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: HomeIcon },
+    { id: "reports", label: "Reports", icon: FileText },
+    { id: "upload", label: "File Upload", icon: Upload },
+    { id: "ai", label: "AI Recs", icon: Brain },
+    { id: "database", label: "DB Recs", icon: Brain },
+    { id: "heatmap", label: "Heatmap", icon: Map },
+    { id: "messages", label: "Messages", icon: Mail },
+    { id: "admin", label: "Admin", icon: Shield },
+    { id: "eucast", label: "EUCAST", icon: FlaskConical },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={`min-h-screen ${isDarkMode ? "bg-black" : "bg-background"}`}>
+      <Header onMenuClick={handleMenuClick} />
+      
+      {/* Mobile Menu Button */}
+      <div className="lg:hidden fixed top-14 right-2 z-50">
+        <Button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          variant="outline"
+          size="sm"
+          className={`h-10 w-10 p-0 shadow-lg ${
+            isDarkMode 
+              ? "bg-gray-900 border-gray-700" 
+              : "bg-background"
+          }`}
+        >
+          {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
+      </div>
+      
+      <div className="flex flex-col lg:flex-row">
+        {/* Sidebar */}
+        <div 
+          className={
+            "fixed lg:static inset-y-0 right-0 z-40 " +
+            (isDarkMode 
+              ? "bg-black border-gray-800" 
+              : "bg-card border-border") +
+            " shadow-xl border-l " +
+            "transform transition-transform duration-300 ease-in-out " +
+            "w-16 sm:w-48 md:w-56 lg:w-64 xl:w-72 " +
+            "mt-14 lg:mt-0 " +
+            (sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0")
+          }
+        >
+          <div className="flex flex-col h-full overflow-hidden">
+            {/* Reset Button */}
+            <div className="px-2 py-2 lg:px-4 lg:py-4">
+              <Button
+                onClick={() => handleTabChange("dashboard")}
+                variant="default"
+                className={`w-full justify-center sm:justify-start h-9 sm:h-10 ${
+                  isDarkMode 
+                    ? "bg-gray-800 hover:bg-gray-700 text-white" 
+                    : "bg-primary hover:bg-primary/90 text-primary-foreground"
+                }`}
+              >
+                <HomeIcon className="h-4 w-4" />
+                <span className="ml-2 hidden sm:inline">Reset</span>
+              </Button>
+            </div>
+
+            {/* Menu Items */}
+            <div className="flex-1 px-2 lg:px-4 py-2 space-y-1 overflow-y-auto">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                
+                return (
+                  <Button
+                    key={item.id}
+                    onClick={() => handleTabChange(item.id)}
+                    variant={isActive ? "default" : "ghost"}
+                    className={
+                      "w-full justify-center sm:justify-start transition-all duration-200 ease-in-out rounded-lg h-9 sm:h-10 " +
+                      (isActive 
+                        ? (isDarkMode 
+                            ? "bg-gray-800 hover:bg-gray-700 text-white" 
+                            : "bg-primary hover:bg-primary/90 text-primary-foreground") 
+                        : (isDarkMode 
+                            ? "hover:bg-gray-900 text-gray-300" 
+                            : "hover:bg-accent"))
+                    }
+                    title={item.label}
+                  >
+                    <Icon className="h-4 w-4 flex-shrink-0" />
+                    <span className="ml-2 hidden sm:inline">
+                      {item.label}
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        {/* Overlay for mobile */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black bg-opacity-50 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+        
+        {/* Main Content */}
+        <main className={`flex-1 w-full p-2 sm:p-3 md:p-4 lg:p-4 xl:p-6 mt-14 lg:mt-0 ${
+          isDarkMode ? "bg-black" : ""
+        }`}>
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-4">
+              <div className={`animate-spin rounded-full h-8 w-8 border-b-2 ${
+                isDarkMode ? "border-white" : "border-primary"
+              }`}></div>
+            </div>
+          }>
+            {renderContent()}
+          </Suspense>
+        </main>
+      </div>
     </div>
   );
 }
