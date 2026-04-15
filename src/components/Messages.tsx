@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { API_BASE_URL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -104,6 +105,7 @@ const ITEMS_PER_PAGE = 10;
 
 export default function Messages() {
   const { user } = useAuth();
+  const API_BASE = API_BASE_URL;
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [entities, setEntities] = useState<Entity[]>([]);
@@ -180,7 +182,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      let url = "http://127.0.0.1:8000/api/messaging/messages/";
+      let url = `${API_BASE}/api/messaging/messages/`;
       if (activeTab === 'archived') {
         url += "archived/";
       } else if (activeTab === 'starred') {
@@ -209,7 +211,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/users/", {
+      const response = await fetch(`${API_BASE}/api/users/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -238,9 +240,9 @@ export default function Messages() {
 
     try {
       const [bacteriaRes, antibioticsRes, samplesRes] = await Promise.all([
-        fetch("http://127.0.0.1:8000/api/bacteria/", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://127.0.0.1:8000/api/antibiotics/", { headers: { Authorization: `Bearer ${token}` } }),
-        fetch("http://127.0.0.1:8000/api/samples/", { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/api/bacteria/`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/api/antibiotics/`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${API_BASE}/api/samples/`, { headers: { Authorization: `Bearer ${token}` } }),
       ]);
 
       const entities: Entity[] = [];
@@ -297,7 +299,7 @@ export default function Messages() {
         formData.append(`attachments[${index}]`, file);
       });
 
-      const response = await fetch("http://127.0.0.1:8000/api/messaging/messages/", {
+      const response = await fetch(`${API_BASE}/api/messaging/messages/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -332,7 +334,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${messageId}/archive/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${messageId}/archive/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -350,7 +352,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${messageId}/unarchive/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${messageId}/unarchive/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -368,7 +370,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${messageId}/toggle_star/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${messageId}/toggle_star/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -385,7 +387,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${messageId}/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${messageId}/`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -403,7 +405,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${messageId}/mark_read/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${messageId}/mark_read/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -420,7 +422,7 @@ export default function Messages() {
     if (!token) return;
 
     try {
-      let url = "http://127.0.0.1:8000/api/messaging/messages/search/?";
+      let url = `${API_BASE}/api/messaging/messages/search/?`;
       if (searchQuery) url += `q=${encodeURIComponent(searchQuery)}&`;
       if (searchSender) url += `sender=${encodeURIComponent(searchSender)}&`;
       if (searchType) url += `message_type=${searchType}&`;
@@ -445,7 +447,7 @@ export default function Messages() {
     if (!token) return;
 
     for (const msgId of selectedMessages) {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${msgId}/archive/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${msgId}/archive/`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -460,7 +462,7 @@ export default function Messages() {
     if (!token) return;
 
     for (const msgId of selectedMessages) {
-      await fetch(`http://127.0.0.1:8000/api/messaging/messages/${msgId}/`, {
+      await fetch(`${API_BASE}/api/messaging/messages/${msgId}/`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

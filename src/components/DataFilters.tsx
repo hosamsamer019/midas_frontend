@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,8 +92,7 @@ export default function DataFilters({
         };
       }
 
-      const API_BASE =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const API_BASE = API_BASE_URL;
 
       try {
         const bacteriaRes = await fetch(
@@ -142,7 +142,7 @@ export default function DataFilters({
       } catch (err) {
         console.error("Error fetching filter options:", err);
         setError(
-          "Unable to connect to server. Please ensure the Django backend is running on port 8000.",
+          "Unable to connect to the backend server. Please verify the API URL and server status.",
         );
       } finally {
         setLoading(false);

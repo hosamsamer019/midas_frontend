@@ -8,6 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "@/lib/constants";
 
 interface User {
   id: number;
@@ -62,13 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (username: string, password: string) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/token/`,
-        {
-          username,
-          password,
-        },
-      );
+      const response = await axios.post(`${API_BASE_URL}/api/auth/token/`, {
+        username,
+        password,
+      });
       const { access, user: userData } = response.data;
 
       // Transform user data to match frontend User interface
